@@ -16,7 +16,7 @@ import HomeUpcommingFetch from "./Component/HomeUpcoming/HomeUpcommingFetch"
 import Login from "./Component/login/login"
 import './App.css';
 import { useEffect,useState } from 'react'
-const users = []
+
 
 
 
@@ -32,8 +32,8 @@ const App = () => {
     .then(json =>{
         console.log(json);
         if(json.logged === true){
-          users.push(json.foundUser)
-        setRole(users[0].role)
+          
+        setRole(json.foundUser.role)
         setUser(json.foundUser.email)
           
 }
@@ -47,7 +47,7 @@ function logOut(){
 }
 
 console.log(role);
-console.log(users);
+
   return (   <section >
   
 
