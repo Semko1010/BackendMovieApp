@@ -13,6 +13,21 @@ client
 .then((connected_client)=>{
 const db = connected_client.db("movieUsers")
 
+const generateToken = (user) => {
+    const NOW = Date.now() / 1000
+    const ONE_DAY = 24 * 60 * 60
+    const NOW_IN_ONE_DAY = NOW + ONE_DAY
+    
+    const token = jwt.sign({
+        sub: user,      // wer ist es
+        iat: NOW, // dividieren durch 1000 um von millisekunden auf sekunden zu kommen...
+        exp: NOW_IN_ONE_DAY, // wann er abläuft
+        type: "access_token",
+    }, "secret")
+
+    return token
+}
+
 
 app.get("/login", (req, res) => {
                     
