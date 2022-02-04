@@ -78,14 +78,13 @@ app.post("/login", (req, res) => {
         db.collection('users')
         .findOne({email: fields.email} && {password: fields.password}).then((foundUser) => {
         
-        if (foundUser) {
+        if (!foundUser) {
+            res.send({logged:false});
+        }
         array.push({logged:true,foundUser})
         res.redirect('http://localhost:3000');
-        console.log("array",array);
-                
-        } else {
-        res.send({logged:false});
-        }
+        
+        
         console.log(foundUser);
         })
         
