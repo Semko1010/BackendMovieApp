@@ -6,8 +6,12 @@ const formidable = require('formidable')
 const app = express()
 const PORT = 2020
 const cors = require('cors')
+const jwt = require('jsonwebtoken')
 app.use(cors())
 let array = []
+const bodyParser = require('body-parser')
+const jsonParser = bodyParser.json()
+const urlencodedParser = bodyParser.urlencoded({ extended: true })
 client
 .connect()
 .then((connected_client)=>{
@@ -31,7 +35,7 @@ const generateToken = (user) => {
 
 app.get("/login", (req, res) => {
                     
-    res.send(array[0])
+    console.log(req);
     
 })
 
@@ -42,30 +46,30 @@ app.get("/register", (req, res) => {
 
 // Register
 
-app.post("/register", (req, res) => {
-    const form = formidable({ multiples: true});
-    form.parse(req, (err, fields, files) => {
-        if (err) {
-            console.log("Error");
-            return;
-        }
+app.post("/register",jsonParser, (req, res) => {
+    const username = req.body.username
+    const email = req.body.email
+    const password = req.body.password
+ 
+       
         //User anlegen, 
         const user = {
-            username: fields.username,
-            email: fields.email,
-            password: fields.password,
+            username: username,
+            email: email,
+            password: password,
             }
         
         //username und email soll unique sein
         db.collection('users')
         .findOne({ 
             $or: [
-                { username: fields.username },
-                { email: fields.email, },
+                { username: username },
+                { email: email, },
                 ]
         }).then((foundUser) => {
             if (foundUser) {
                 console.log("User Exist");
+                console.log(email);
             } else {
                 db.collection('users')
                 .insertOne(user)
@@ -77,34 +81,31 @@ app.post("/register", (req, res) => {
             
         })
         
-    });
+   
 })
 
 // Loggin
 
-app.post("/login", (req, res) => {
-    const form = formidable({ multiples: true});
-   
-    form.parse(req, (err, fields, files) => {
-        if (err) {
-            console.log("Error");
-            return;
-        }
+app.post("/login", jsonParser,(req, res) => {
+const email = req.body.email
+const password = req.body.password
+
         db.collection('users')
-        .findOne({email: fields.email} && {password: fields.password}).then((foundUser) => {
+        .findOne({email: email} && {password: password}).then((foundUser) => {
         
         if (!foundUser) {
             res.send({logged:false});
         }
-        array.push({logged:true,foundUser})
-        res.redirect('http://localhost:3000');
+        // array.push({logged:true,foundUser})
+        // res.redirect('http://localhost:3000');
+        const token = generateToken(foundUser)
+        res.json({logged:true,token:token})
         
-        
-        console.log(foundUser);
+        console.log(req.headers);
         })
         
       
-    });
+ 
    
 })
 
